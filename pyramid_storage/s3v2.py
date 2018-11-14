@@ -76,11 +76,13 @@ class S3V2FileStorage(S3FileStorage):
         endpoint_url = '{}:{}'.format(options['host'],
                                       options['port']) if 'host' in options and 'port' in options else None
 
+        config = Config(signature_version=options['signature_version']) if 'signature_version' in options else None
+
         resource = boto3.resource('s3',
                                   endpoint_url=endpoint_url,
                                   aws_access_key_id=options['aws_access_key_id'],
                                   aws_secret_access_key=options['aws_secret_access_key'],
-                                  config=Config(signature_version=options['signature_version']),
+                                  config=config,
                                   region_name=options['region'])
 
         return resource
