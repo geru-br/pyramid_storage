@@ -45,6 +45,7 @@ class S3V2FileStorage(S3FileStorage):
             ('aws.num_retries', False, 1),
             ('aws.timeout', False, 5),
             ('aws.signature_version', False, None),
+            ('aws.auth_mode', False, 'no_auth'),
         )
         kwargs = utils.read_settings(settings, options, prefix)
         kwargs = dict([(k.replace('aws.', ''), v) for k, v in kwargs.items()])
@@ -73,17 +74,24 @@ class S3V2FileStorage(S3FileStorage):
         if not options['host']:
             del options['host']
 
-        endpoint_url = '{}:{}'.format(options['host'],
-                                      options['port']) if 'host' in options and 'port' in options else None
+        resource = None
 
-        config = Config(signature_version=options['signature_version']) if 'signature_version' in options else None
+        if options['aws.auth_mode'] == 'auth_s3v4':
 
-        resource = boto3.resource('s3',
-                                  endpoint_url=endpoint_url,
-                                  aws_access_key_id=options['aws_access_key_id'],
-                                  aws_secret_access_key=options['aws_secret_access_key'],
-                                  config=config,
-                                  region_name=options['region'])
+            endpoint_url = '{}:{}'.format(options['host'],
+                                          options['port']) if 'host' in options and 'port' in options else None
+
+            config = Config(signature_version=options['signature_version']) if 'signature_version' in options else None
+
+            resource = boto3.resource('s3',
+                                      endpoint_url=endpoint_url,
+                                      aws_access_key_id=options['aws_access_key_id'],
+                                      aws_secret_access_key=options['aws_secret_access_key'],
+                                      config=config,
+                                      region_name=options['region'])
+
+        elif options['aws.auth_mode'] == 'no_auth':
+            resource = boto3.resource('s3')
 
         return resource
 

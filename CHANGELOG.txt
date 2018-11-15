@@ -1,4 +1,9 @@
-2.0.2
+2.0.4
+==================
+
+- Added auth_mde for s3v2
+
+2.0.3
 ==================
 
 - Fixed mandatory signature version
