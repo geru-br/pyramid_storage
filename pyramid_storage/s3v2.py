@@ -76,7 +76,7 @@ class S3V2FileStorage(S3FileStorage):
 
         resource = None
 
-        if options['aws.auth_mode'] == 's3v4':
+        if options['aws.auth_mode'] == 'auth_s3v4':
 
             endpoint_url = '{}:{}'.format(options['host'],
                                           options['port']) if 'host' in options and 'port' in options else None
