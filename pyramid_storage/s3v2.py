@@ -76,7 +76,7 @@ class S3V2FileStorage(S3FileStorage):
 
         resource = None
 
-        if options['aws.auth_mode'] == 'auth_s3v4':
+        if options['auth_mode'] == 'auth_s3v4':
 
             endpoint_url = '{}:{}'.format(options['host'],
                                           options['port']) if 'host' in options and 'port' in options else None
@@ -90,7 +90,7 @@ class S3V2FileStorage(S3FileStorage):
                                       config=config,
                                       region_name=options['region'])
 
-        elif options['aws.auth_mode'] == 'no_auth':
+        elif options['auth_mode'] == 'no_auth':
             resource = boto3.resource('s3')
 
         return resource
