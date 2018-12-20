@@ -111,6 +111,15 @@ class S3V2FileStorage(S3FileStorage):
 
         return open(f.name, *args)
 
+    def close(self, filename):
+        """Removes a temporary file created [but not deleted] by the method `self.open`.
+        """
+
+        if filename not in self._opened_files:
+            raise ValueError('The file {} was not open by this instance.'.format(filename))
+        os.unlink(filename)
+        self._opened_files -= set([filename])
+
     def exists(self, filename):
         """
         Test if a file exists
@@ -118,7 +127,7 @@ class S3V2FileStorage(S3FileStorage):
         :return:
         """
         file_object = self.get_bucket().Object(filename)
-        try :
+        try:
             file_object.get()
             return True
         except file_object.meta.client.exceptions.NoSuchKey:
@@ -239,4 +248,3 @@ class S3V2FileStorage(S3FileStorage):
         """
         self.copy_file(src, dst)
         self.delete(src)
-

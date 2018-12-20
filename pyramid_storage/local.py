@@ -74,6 +74,10 @@ class LocalFileStorage(object):
         """
         return open(self.path(filename), *args)
 
+    def close(self, filename):
+        # A method used only by the S3 implementation, but adding to keep the compatibility.
+        pass
+
     def delete(self, filename):
         """Deletes the filename. Filename is resolved with the
         absolute path based on base_path. If file does not exist,
