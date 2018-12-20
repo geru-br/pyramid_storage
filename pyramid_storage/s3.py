@@ -109,28 +109,26 @@ class S3FileStorage(object):
         """
         return compat.urlparse.urljoin(self.base_url, filename)
 
-    def open(self, filename, *args):
+    def open(self, filename, *args, **kwargs):
         """Return filelike object stored
         """
 
         bucket = self.get_bucket()
         key = bucket.get_key(filename) or bucket.new_key(filename)
 
-        f = tempfile.NamedTemporaryFile(delete=False)
-        f.close()
+        as_context_manager = kwargs.get('as_ctx_mng', False)
+        f = tempfile.NamedTemporaryFile(delete=as_context_manager)
         key.get_contents_to_filename(f.name)
-        self._opened_files.add(f.name)
+
+        if as_context_manager:
+            try:
+                return open(f.name, *args)
+            finally:
+                f.close()
+
+        f.close()
 
         return open(f.name, *args)
-
-    def close(self, filename):
-        """Removes a temporary file created [but not deleted] by the method `self.open`.
-        """
-
-        if filename not in self._opened_files:
-            raise ValueError('The file {} was not open by this instance.'.format(filename))
-        os.unlink(filename)
-        self._opened_files -= set([filename])
 
     def exists(self, filename):
         return self.get_bucket().new_key(filename).exists()

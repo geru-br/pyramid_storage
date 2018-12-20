@@ -373,7 +373,7 @@ def test_from_settings_with_regional_options_ignores_host_port():
         assert 'port' not in boto_options
 
 
-def test_close_temporary_file():
+def test_open_simple_case():
 
     from pyramid_storage import s3
 
@@ -384,18 +384,18 @@ def test_close_temporary_file():
         extensions="images")
 
     with mock.patch('pyramid_storage.s3.S3FileStorage.get_connection', _get_mock_s3_connection):
-        s.open('foo')
+        tmp_file = s.open('foo')
 
-    assert len(s._opened_files) == 1
-    tmp_open_file = next(iter(s._opened_files))
+    assert os.path.isfile(tmp_file.name) is True
 
-    s.close(tmp_open_file)
+    with tmp_file:
+        # just to ensure the fill will not be deleted
+        pass
 
-    assert len(s._opened_files) == 0
-    assert os.path.isfile(tmp_open_file) is False
+    assert os.path.isfile(tmp_file.name) is True
 
 
-def test_close_non_temporary_file():
+def test_open_as_context_manager():
 
     from pyramid_storage import s3
 
@@ -406,9 +406,6 @@ def test_close_non_temporary_file():
         extensions="images")
 
     with mock.patch('pyramid_storage.s3.S3FileStorage.get_connection', _get_mock_s3_connection):
-        s.open('foo')
-
-    with pytest.raises(ValueError):
-        s.close('/etc/shadow')
-
-    assert len(s._opened_files) == 1
+        with s.open('foo', as_ctx_mng=True) as f:
+            tmp_file_name = f.name
+    assert os.path.isfile(tmp_file_name) is False
