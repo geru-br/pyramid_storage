@@ -112,7 +112,7 @@ class S3V2FileStorage(S3FileStorage):
 
         if as_context_manager:
             try:
-                return open(f)
+                return open(f, *args)
             finally:
                 f.close()
 
