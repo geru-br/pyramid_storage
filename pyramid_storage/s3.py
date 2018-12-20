@@ -59,6 +59,7 @@ class S3FileStorage(object):
         self.base_url = base_url
         self.extensions = resolve_extensions(extensions)
         self.conn_options = conn_options
+        self._opened_files = set()
 
     def get_connection(self):
         try:
@@ -118,8 +119,18 @@ class S3FileStorage(object):
         f = tempfile.NamedTemporaryFile(delete=False)
         f.close()
         key.get_contents_to_filename(f.name)
+        self._opened_files.add(f.name)
 
         return open(f.name, *args)
+
+    def close(self, filename):
+        """Removes a temporary file created [but not deleted] by the method `self.open`.
+        """
+
+        if filename not in self._opened_files:
+            raise ValueError('The file {} was not open by this instance.'.format(filename))
+        os.unlink(filename)
+        self._opened_files -= set([filename])
 
     def exists(self, filename):
         return self.get_bucket().new_key(filename).exists()

@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+import os
 import re
 
 import mock
@@ -370,3 +371,44 @@ def test_from_settings_with_regional_options_ignores_host_port():
         _, boto_options = boto_mocked.call_args_list[0]
         assert 'host' not in boto_options
         assert 'port' not in boto_options
+
+
+def test_close_temporary_file():
+
+    from pyramid_storage import s3
+
+    s = s3.S3FileStorage(
+        access_key="AK",
+        secret_key="SK",
+        bucket_name="my_bucket",
+        extensions="images")
+
+    with mock.patch('pyramid_storage.s3.S3FileStorage.get_connection', _get_mock_s3_connection):
+        s.open('foo')
+
+    assert len(s._opened_files) == 1
+    tmp_open_file = next(iter(s._opened_files))
+
+    s.close(tmp_open_file)
+
+    assert len(s._opened_files) == 0
+    assert os.path.isfile(tmp_open_file) is False
+
+
+def test_close_non_temporary_file():
+
+    from pyramid_storage import s3
+
+    s = s3.S3FileStorage(
+        access_key="AK",
+        secret_key="SK",
+        bucket_name="my_bucket",
+        extensions="images")
+
+    with mock.patch('pyramid_storage.s3.S3FileStorage.get_connection', _get_mock_s3_connection):
+        s.open('foo')
+
+    with pytest.raises(ValueError):
+        s.close('/etc/shadow')
+
+    assert len(s._opened_files) == 1
