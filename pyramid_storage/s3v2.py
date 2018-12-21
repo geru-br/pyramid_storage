@@ -98,15 +98,20 @@ class S3V2FileStorage(S3FileStorage):
     def get_bucket(self):
         return self.get_resource().Bucket(self.bucket_name)
 
-    def open(self, filename, *args):
+    def open(self, filename, *args, **kwargs):
         """Return filelike object stored
         """
 
         bucket = self.get_bucket()
         stream = bucket.Object(filename).get()['Body']
 
-        f = tempfile.NamedTemporaryFile(delete=False)
+        delete = kwargs.get('delete', False)
+        f = tempfile.NamedTemporaryFile(delete=delete)
         f.write(stream.read())
+
+        if delete:
+            return f
+
         f.close()
 
         return open(f.name, *args)

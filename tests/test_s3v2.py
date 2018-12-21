@@ -1,12 +1,11 @@
 # -*- coding: utf-8 -*-
 
-import re
+import os
 
 import mock
 import pytest
 
 from pyramid import compat
-from pyramid import exceptions as pyramid_exceptions
 
 
 class MockBucket(mock.Mock):
@@ -18,10 +17,21 @@ class MockBucket(mock.Mock):
 
         return [mock_key_1]
 
+
 class MockS3Resource(object):
 
     def Bucket(self, bucket_name):
         return MockBucket()
+
+
+class MockS3Connection(object):
+
+    def get_bucket(self, bucket_name):
+        return MockBucket()
+
+
+def _get_mock_s3_connection(self):
+    return MockS3Connection()
 
 
 def _get_mock_s3_resource(self):
@@ -157,3 +167,45 @@ def test_save_if_randomize():
             _get_mock_s3_resource):
         name = s.save(fs, randomize=True)
     assert name != "test.jpg"
+
+
+def test_open_simple_case():
+
+    from pyramid_storage import s3v2
+
+    s = s3v2.S3FileStorage(
+        access_key="AK",
+        secret_key="SK",
+        bucket_name="my_bucket",
+        extensions="images")
+
+    with mock.patch('pyramid_storage.s3.S3FileStorage.get_connection',
+                    _get_mock_s3_connection):
+        tmp_file = s.open('foo')
+
+    assert os.path.isfile(tmp_file.name) is True
+
+    with tmp_file:
+        # just to ensure the fill will not be deleted
+        pass
+
+    assert os.path.isfile(tmp_file.name) is True
+
+
+def test_open_as_context_manager():
+
+    from pyramid_storage import s3v2
+
+    s = s3v2.S3FileStorage(
+        access_key="AK",
+        secret_key="SK",
+        bucket_name="my_bucket",
+        extensions="images")
+
+    with mock.patch('pyramid_storage.s3.S3FileStorage.get_connection',
+                    _get_mock_s3_connection):
+        with s.open('foo', delete=True) as f:
+            tmp_file_name = f.name
+            assert os.path.isfile(tmp_file_name) is True
+
+    assert os.path.isfile(tmp_file_name) is False

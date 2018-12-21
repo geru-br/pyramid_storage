@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+import os
 import re
 
 import mock
@@ -370,3 +371,39 @@ def test_from_settings_with_regional_options_ignores_host_port():
         _, boto_options = boto_mocked.call_args_list[0]
         assert 'host' not in boto_options
         assert 'port' not in boto_options
+
+
+def test_open_simple_case():
+
+    from pyramid_storage import s3
+
+    s = s3.S3FileStorage(
+        access_key="AK",
+        secret_key="SK",
+        bucket_name="my_bucket",
+        extensions="images")
+
+    with mock.patch('pyramid_storage.s3.S3FileStorage.get_connection', _get_mock_s3_connection):
+        _file = s.open('foo')
+
+    assert os.path.isfile(_file.name) is True
+    assert _file.closed is False
+
+
+def test_open_as_context_manager():
+
+    from pyramid_storage import s3
+
+    s = s3.S3FileStorage(
+        access_key="AK",
+        secret_key="SK",
+        bucket_name="my_bucket",
+        extensions="images")
+
+    with mock.patch('pyramid_storage.s3.S3FileStorage.get_connection', _get_mock_s3_connection):
+        with s.open('foo', delete=True) as tmp_file:
+            assert tmp_file.closed is False
+            assert os.path.isfile(tmp_file.name) is True
+
+    assert tmp_file.closed is True
+    assert os.path.isfile(tmp_file.name) is False

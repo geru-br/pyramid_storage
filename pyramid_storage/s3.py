@@ -108,16 +108,21 @@ class S3FileStorage(object):
         """
         return compat.urlparse.urljoin(self.base_url, filename)
 
-    def open(self, filename, *args):
+    def open(self, filename, *args, **kwargs):
         """Return filelike object stored
         """
 
         bucket = self.get_bucket()
         key = bucket.get_key(filename) or bucket.new_key(filename)
 
-        f = tempfile.NamedTemporaryFile(delete=False)
-        f.close()
+        delete = kwargs.get('delete', False)
+        f = tempfile.NamedTemporaryFile(delete=delete)
         key.get_contents_to_filename(f.name)
+
+        if delete is True:
+            return f
+
+        f.close()
 
         return open(f.name, *args)
 

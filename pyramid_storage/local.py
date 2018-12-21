@@ -69,7 +69,7 @@ class LocalFileStorage(object):
         """
         return os.path.join(self.base_path, filename)
 
-    def open(self, filename, *args):
+    def open(self, filename, *args, **kwargs):
         """Return filelike object stored
         """
         return open(self.path(filename), *args)
