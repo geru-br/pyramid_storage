@@ -59,7 +59,6 @@ class S3FileStorage(object):
         self.base_url = base_url
         self.extensions = resolve_extensions(extensions)
         self.conn_options = conn_options
-        self._opened_files = set()
 
     def get_connection(self):
         try:
