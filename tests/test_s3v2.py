@@ -204,6 +204,8 @@ def test_open_as_context_manager():
 
     with mock.patch('pyramid_storage.s3.S3FileStorage.get_connection',
                     _get_mock_s3_connection):
-        with s.open('foo', as_ctx_mng=True) as f:
+        with s.open('foo', delete=True) as f:
             tmp_file_name = f.name
+            assert os.path.isfile(tmp_file_name) is True
+
     assert os.path.isfile(tmp_file_name) is False

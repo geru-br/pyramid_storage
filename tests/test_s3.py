@@ -384,15 +384,10 @@ def test_open_simple_case():
         extensions="images")
 
     with mock.patch('pyramid_storage.s3.S3FileStorage.get_connection', _get_mock_s3_connection):
-        tmp_file = s.open('foo')
+        _file = s.open('foo')
 
-    assert os.path.isfile(tmp_file.name) is True
-
-    with tmp_file:
-        # just to ensure the fill will not be deleted
-        pass
-
-    assert os.path.isfile(tmp_file.name) is True
+    assert os.path.isfile(_file.name) is True
+    assert _file.closed is False
 
 
 def test_open_as_context_manager():
@@ -406,6 +401,9 @@ def test_open_as_context_manager():
         extensions="images")
 
     with mock.patch('pyramid_storage.s3.S3FileStorage.get_connection', _get_mock_s3_connection):
-        with s.open('foo', as_ctx_mng=True) as f:
-            tmp_file_name = f.name
-    assert os.path.isfile(tmp_file_name) is False
+        with s.open('foo', delete=True) as tmp_file:
+            assert tmp_file.closed is False
+            assert os.path.isfile(tmp_file.name) is True
+
+    assert tmp_file.closed is True
+    assert os.path.isfile(tmp_file.name) is False

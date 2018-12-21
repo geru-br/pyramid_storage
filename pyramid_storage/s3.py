@@ -116,15 +116,12 @@ class S3FileStorage(object):
         bucket = self.get_bucket()
         key = bucket.get_key(filename) or bucket.new_key(filename)
 
-        as_context_manager = kwargs.get('as_ctx_mng', False)
-        f = tempfile.NamedTemporaryFile(delete=as_context_manager)
+        delete = kwargs.get('delete', False)
+        f = tempfile.NamedTemporaryFile(delete=delete)
         key.get_contents_to_filename(f.name)
 
-        if as_context_manager:
-            try:
-                return open(f.name, *args)
-            finally:
-                f.close()
+        if delete is True:
+            return f
 
         f.close()
 
