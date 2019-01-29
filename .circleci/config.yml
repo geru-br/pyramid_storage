@@ -72,7 +72,7 @@ jobs:
           command: |
             python setup.py sdist
             virtualenv venv
-            ./venv/bin/pip install twine
+            ./venv/bin/pip install twine==1.12.1
             ./venv/bin/twine upload --repository-url https://geru-pypi.geru.com.br/ dist/*
 
 workflows:
