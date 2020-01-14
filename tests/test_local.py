@@ -255,6 +255,9 @@ def test_remove_if_exists():
     s = local.LocalFileStorage("")
     assert s.delete("test.jpg")
 
+    for patch in patches:
+        patch.stop()
+
 
 def test_remove_if_not_exists():
     from pyramid_storage import local
@@ -335,3 +338,6 @@ def test_folder_listing():
     files_list = s.get_files_list('uploads')
     assert 'image1.png' in files_list
     assert 'image2.png' in files_list
+
+    for patch in patches:
+        patch.stop()
