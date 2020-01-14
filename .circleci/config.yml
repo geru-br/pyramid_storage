@@ -15,8 +15,9 @@ jobs:
       - run:
           name: install dependencies
           command: |
-            virtualenv venv
+            virtualenv venv --no-setuptools
             source /home/circleci/repo/venv/bin/activate
+            pip install setuptools==44.0.0
             pip install -e .[test]
       - save_cache:
           paths:

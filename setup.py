@@ -34,16 +34,18 @@ docs_extras = [
 ]
 
 tests_require = [
-    'pytest',
-    'mock',
-    'boto'
+    'pytest==4.6.9',
+    'mock==3.0.5',
+    'boto==2.49.0',
+    'boto3==1.9.231',
+    'moto==1.3.14',
 ]
 
 
 setup(
     name='pyramid_storage',
     cmdclass={'test': PyTest},
-    version='2.0.6+geru.01',
+    version='2.0.6+geru.02',
     license='BSD',
     author='Dan Jacob',
     author_email='danjac354@gmail.com',
@@ -57,6 +59,7 @@ setup(
     platforms='any',
     install_requires=[
         'pyramid',
+        'venusian==2.1.0'
     ],
     extras_require={
         'docs': docs_extras,

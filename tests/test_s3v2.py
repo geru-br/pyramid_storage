@@ -4,8 +4,9 @@ import os
 
 import mock
 import pytest
-
 from pyramid import compat
+
+from pyramid_storage.s3v2 import S3V2FileStorage
 
 
 class MockBucket(mock.Mock):
@@ -209,3 +210,11 @@ def test_open_as_context_manager():
             assert os.path.isfile(tmp_file_name) is True
 
     assert os.path.isfile(tmp_file_name) is False
+
+
+def test_s3v2_open_should_open_image_in_bucket(mock_boto_s3, image_in_bytes):
+
+    s = S3V2FileStorage.from_settings({'storage.aws.bucket_name': 'my_bucket'}, 'storage.')
+
+    with s.open('filename', delete=True) as image:
+        assert image.read() == image_in_bytes
