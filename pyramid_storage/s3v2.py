@@ -110,6 +110,8 @@ class S3V2FileStorage(S3FileStorage):
         f.write(stream.read())
 
         if delete:
+            # The folowing action is necessary because, after the operations above (line 110), the cursor is at the end of the
+            # file and, therefore, subsequent readings will return empty (i.e., b"").
             f.seek(0)
             return f
 
