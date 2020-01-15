@@ -55,6 +55,7 @@ setup(
     packages=[
         'pyramid_storage',
     ],
+    python_requires='>=2.7, <4',
     zip_safe=False,
     platforms='any',
     install_requires=[
