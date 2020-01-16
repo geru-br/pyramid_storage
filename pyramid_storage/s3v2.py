@@ -110,6 +110,9 @@ class S3V2FileStorage(S3FileStorage):
         f.write(stream.read())
 
         if delete:
+            # The folowing action is necessary because, after the operations above (line 110), the cursor is at the end of the
+            # file and, therefore, subsequent readings will return empty (i.e., b"").
+            f.seek(0)
             return f
 
         f.close()
@@ -123,7 +126,7 @@ class S3V2FileStorage(S3FileStorage):
         :return:
         """
         file_object = self.get_bucket().Object(filename)
-        try :
+        try:
             file_object.get()
             return True
         except file_object.meta.client.exceptions.NoSuchKey:
@@ -244,4 +247,3 @@ class S3V2FileStorage(S3FileStorage):
         """
         self.copy_file(src, dst)
         self.delete(src)
-

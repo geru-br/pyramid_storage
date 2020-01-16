@@ -15,8 +15,9 @@ jobs:
       - run:
           name: install dependencies
           command: |
-            virtualenv venv
+            virtualenv venv --no-setuptools
             source /home/circleci/repo/venv/bin/activate
+            pip install setuptools==44.0.0
             pip install -e .[test]
       - save_cache:
           paths:
@@ -70,7 +71,7 @@ jobs:
       - run:
           name: build and upload to geru-pypi
           command: |
-            python setup.py sdist
+            python setup.py sdist bdist_wheel
             virtualenv venv
             ./venv/bin/pip install pyopenssl
             ./venv/bin/pip install twine==1.12.1
