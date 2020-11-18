@@ -245,4 +245,4 @@ class LocalFileStorage(object):
         return os.listdir(dest_folder)
 
     def get_md5(self, filename):
-        raise NotImplemented
+        raise NotImplementedError
