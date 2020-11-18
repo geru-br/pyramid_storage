@@ -247,3 +247,16 @@ class S3V2FileStorage(S3FileStorage):
         """
         self.copy_file(src, dst)
         self.delete(src)
+
+    def get_md5(self, filename):
+        """
+        Get md5 hash for file
+
+        This will get md5 from file without downloading it's contents
+        """
+        bucket = self.get_bucket()
+
+        file_object = bucket.Object(filename)
+
+        if file_object:
+            return file_object.e_tag[1:-1]

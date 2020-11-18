@@ -289,3 +289,15 @@ class S3FileStorage(object):
         files_list = [key.name for key in bucket.list(prefix='{}/'.format(folder), delimiter='/')]
 
         return files_list
+
+    def get_md5(self, filename):
+        """
+        Get md5 hash for file
+
+        This will get md5 from file without downloading it's contents
+        """
+        bucket = self.get_bucket()
+        key = bucket.get_key(filename)
+
+        if key:
+            return key.etag[1:-1]
