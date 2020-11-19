@@ -10,7 +10,7 @@ from pyramid.settings import asbool
 from zope.interface import implementer
 
 from . import utils
-from .exceptions import FileNotAllowed
+from .exceptions import FileNotAllowed, ResourceNotFound
 from .extensions import resolve_extensions
 from .interfaces import IFileStorage
 from .registry import register_file_storage_impl
@@ -299,5 +299,7 @@ class S3FileStorage(object):
         bucket = self.get_bucket()
         key = bucket.get_key(filename)
 
-        if key:
-            return key.etag[1:-1]
+        if not key:
+            raise ResourceNotFound
+
+        return key.etag[1:-1]

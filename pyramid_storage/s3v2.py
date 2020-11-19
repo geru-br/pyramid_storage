@@ -8,7 +8,7 @@ import uuid
 from zope.interface import implementer
 
 from . import utils
-from .exceptions import FileNotAllowed
+from .exceptions import FileNotAllowed, ResourceNotFound
 from .interfaces import IFileStorage
 from .registry import register_file_storage_impl
 
@@ -258,5 +258,7 @@ class S3V2FileStorage(S3FileStorage):
 
         file_object = bucket.Object(filename)
 
-        if file_object:
-            return file_object.e_tag[1:-1]
+        if not file_object:
+            raise ResourceNotFound
+
+        return file_object.e_tag[1:-1]
