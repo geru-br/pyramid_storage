@@ -218,3 +218,28 @@ def test_s3v2_open_should_open_image_in_bucket(mock_boto_s3, image_in_bytes):
 
     with s.open('filename', delete=True) as image:
         assert image.read() == image_in_bytes
+
+
+def test_s3v2_get_md5(mock_boto_s3, image_in_bytes):
+    from pyramid_storage import s3v2
+
+    settings = {
+        'storage.aws.access_key': 'abc',
+        'storage.aws.secret_key': '123',
+        'storage.aws.bucket_name': 'my_bucket',
+        'storage.aws.is_secure': 'false',
+        'storage.aws.host': 'localhost',
+        'storage.aws.port': '5000',
+        'storage.aws.use_path_style': 'true',
+        'storage.aws.num_retries': '3',
+        'storage.aws.timeout': '10',
+        'storage.aws.signature_version': 's3v4',
+        'storage.aws.extensions': 'default'
+    }
+
+    s = s3v2.S3V2FileStorage.from_settings(settings, 'storage.')
+
+    mock_boto_s3.put_object(Bucket="my_bucket", Key="filename", Body="test")
+    resulting_hash = s.get_md5("filename")
+
+    assert resulting_hash == '098f6bcd4621d373cade4e832627b4f6'

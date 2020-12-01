@@ -10,7 +10,7 @@ from pyramid.settings import asbool
 from zope.interface import implementer
 
 from . import utils
-from .exceptions import FileNotAllowed
+from .exceptions import FileNotAllowed, ResourceNotFound
 from .extensions import resolve_extensions
 from .interfaces import IFileStorage
 from .registry import register_file_storage_impl
@@ -289,3 +289,17 @@ class S3FileStorage(object):
         files_list = [key.name for key in bucket.list(prefix='{}/'.format(folder), delimiter='/')]
 
         return files_list
+
+    def get_md5(self, filename):
+        """
+        Get md5 hash for file
+
+        This will get md5 from file without downloading it's contents
+        """
+        bucket = self.get_bucket()
+        key = bucket.get_key(filename)
+
+        if not key:
+            raise ResourceNotFound
+
+        return key.etag[1:-1]
